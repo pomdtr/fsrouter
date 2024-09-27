@@ -1,4 +1,3 @@
-import { http } from "../deps.ts";
 import { type Matches } from "./slug.ts";
 
 /**
@@ -30,5 +29,4 @@ export type Slugs = Readonly<Matches>;
 export type FsHandler = (
   request: Request,
   slugs: Slugs,
-  connInfo: http.ConnInfo,
 ) => Response | Promise<Response>;

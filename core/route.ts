@@ -1,5 +1,4 @@
-import { log, path } from "../deps.ts";
-import { type FsHandler } from "./types.ts";
+import { path, log } from "../deps.ts";
 import { Slug } from "./slug.ts";
 import { type Matches } from "./slug.ts";
 import { errorRootDirRelative } from "./message.ts";
@@ -55,15 +54,12 @@ export class Route {
     public absPath: string,
     // The absolute root dir from which the router was started
     public absRootDir: string,
-    // The RouterHandler in charge of responding to http requests for this route
-    public handler: FsHandler,
-  ) {}
+  ) { }
 
-  static async create(
+  static create(
     filePath: string,
     rootDir: string,
-    handler?: FsHandler,
-  ): Promise<Route> {
+  ): Route {
     // Derive the correct route from raw file paths,
     // e.g. /example/blog/post.ts -> /blog/post (where example is the root directory)
     const absPath = path.toFileUrl(path.resolve(Deno.cwd(), filePath)).href;
@@ -73,7 +69,6 @@ export class Route {
       filePath,
       absPath,
       absRootDir,
-      handler ? handler : (await import(absPath)).default as FsHandler,
     );
   }
 
@@ -180,13 +175,13 @@ export class Route {
 
     return new RegExp(
       "^\\/" +
-        this.parts.map(getPartRegex).join("\\/") +
-        "$",
+      this.parts.map(getPartRegex).join("\\/") +
+      "$",
       "g",
     );
   }
 
-  matches(urlPath: string, convertToNumber: boolean): Matches | null {
+  matches(urlPath: string): Matches | null {
     const matches = this.regEx.exec(urlPath);
     if (!matches) {
       return null;
@@ -194,10 +189,7 @@ export class Route {
 
     const matchObj: Matches = {};
     for (const [index, match] of matches.slice(1).entries()) {
-      const shouldConvert = this.slugs[index].type === "number" &&
-        convertToNumber;
-
-      matchObj[this.slugs[index].raw] = shouldConvert ? parseInt(match) : match;
+      matchObj[this.slugs[index].raw] = match;
     }
 
     return matchObj;

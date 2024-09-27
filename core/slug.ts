@@ -1,5 +1,5 @@
 // deno-lint-ignore no-explicit-any
-export type Matches = Record<string, any>;
+export type Matches = Record<string, string>;
 
 export class Slug {
   rawWithType: string;

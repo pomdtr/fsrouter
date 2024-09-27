@@ -1,13 +1,11 @@
-import { colors, fs, http, log } from "../deps.ts";
+import { colors, log, fs } from "../deps.ts";
 import {
-  bootMessage as _bootMessage,
   errorDirNotFound,
   errorRootDirEmpty,
 } from "./message.ts";
 import { notFound } from "./response.ts";
 import { normalizeRootDir, Route } from "./route.ts";
 import { setupLogger } from "./log.ts";
-import { generateManifest } from "./manifest.ts";
 
 // Re-export
 export * from "./types.ts";
@@ -17,8 +15,7 @@ export * from "./types.ts";
 // If a route is hit that doesn't exist, the returned handler will 404.
 export function handleRoutes(
   routes: Route[],
-  options: RouterOptions,
-): http.Handler {
+): FetchHandler {
   // Split routes into ones that are exact (don't have slugs) and ones that aren't
   const exactRoutes = routes.filter((route) => !route.hasSlugs);
   const slugRoutes = Route.sort(routes.filter((route) => route.hasSlugs));
@@ -33,7 +30,7 @@ export function handleRoutes(
     exactRoutes.map((route) => [route.parsed, route]),
   );
 
-  return (req, connInfo) => {
+  return async (req) => {
     const urlPath = new URL(req.url).pathname;
     const exactRoute = exactRouteMap.get(urlPath);
 
@@ -43,22 +40,24 @@ export function handleRoutes(
         `Url ${colors.bold(urlPath)} matched exact file:`,
         exactRoute.relativePath,
       );
-      return exactRoute.handler(req, {}, connInfo);
+      const { default: handler } = await import(exactRoute.absPath)
+      return handler(req, {});
     }
 
     // Otherwise, try matching slug routes
     for (const slugRoute of slugRoutes) {
-      const matches = slugRoute.matches(urlPath, options.convertToNumber);
+      const matches = slugRoute.matches(urlPath);
       if (matches) {
         log.debug(
-          `Url ${urlPath} matched file ${
-            colors.bold(slugRoute.relativePath)
+          `Url ${urlPath} matched file ${colors.bold(slugRoute.relativePath)
           } with parameters:`,
           matches,
         );
         log.debug("Matched with pattern:", slugRoute.regEx.toString());
 
-        return slugRoute.handler(req, matches, connInfo);
+
+        const { default: handler } = await import(slugRoute.absPath)
+        return handler(req, matches);
       }
     }
 
@@ -68,10 +67,9 @@ export function handleRoutes(
   };
 }
 
-async function discoverRoutes(
+function discoverRoutes(
   rootDir: string,
-  options: RouterOptions,
-): Promise<Route[]> {
+): Route[] {
   const walkOpts: fs.WalkOptions = {
     // Exclude directories when walking the filesystem.  We only care
     // about files which have declared handlers in them.
@@ -85,7 +83,7 @@ async function discoverRoutes(
 
   const files: fs.WalkEntry[] = [];
   try {
-    for await (const filePath of fs.walk(rootDir, walkOpts)) {
+    for (const filePath of fs.walkSync(rootDir, walkOpts)) {
       files.push(filePath);
     }
   } catch (_e) {
@@ -97,19 +95,8 @@ async function discoverRoutes(
   }
 
   log.debug("fs.walk found", files.length, "entries:", files);
-  const routes = await Promise.all(
-    files.map((file) => Route.create(file.path, rootDir)),
-  );
+  const routes = files.map((file) => Route.create(file.path, rootDir))
 
-  if (options.generateManifest) {
-    await generateManifest(routes, rootDir, options);
-  } else {
-    log.debug(
-      `Not generating manifest file because ${
-        colors.bold("RouterOptions.generateManifest")
-      } is false`,
-    );
-  }
 
   return routes;
 }
@@ -119,51 +106,18 @@ async function discoverRoutes(
  */
 export interface RouterOptions {
   /**
-   * Whether or not an information message should be shown on startup.
-   * Defaults to true.
-   */
-  bootMessage: boolean;
-
-  /**
    * Whether or not to output debug information to console.
    * Defaults to false.
    */
   debug: boolean;
-
-  /**
-   * Whether or not slugs of type :number should be automatically converted to numbers
-   * in the matches object.
-   *
-   * For example, given the slug [id:number]:
-   * - if convertToNumber === true, then (typeof slugs.id) === 'number'
-   * - if convertToNumber === false, then (typeof slugs.id) === 'string'
-   *
-   * Defaults to true.
-   */
-  convertToNumber: boolean;
-
-  /**
-   * Whether or not a manifest file should be generated containing static imports for all routes.
-   * This manifest file is needed for Deno environments that do not support
-   * dynamic imports, e.g. Deno Deploy.
-   * The location of the manifest file is as a sibling to the supplied root directory.
-   *
-   * Set this option to false if you don't need this manifest, e.g.
-   * you're deploying to a Deno environment that supports dynamic imports.
-   *
-   * Defaults to true.
-   */
-  generateManifest: boolean;
-  _routes: Route[];
 }
 
+export type FetchHandler = (req: Request) => Response | Promise<Response>;
+
 export const defaultOptions: RouterOptions = {
-  bootMessage: true,
   debug: false,
-  convertToNumber: true,
-  generateManifest: true,
-  _routes: [],
 };
+
 
 /**
  * fsRouter creates a standard library Handler which handles requests
@@ -213,10 +167,10 @@ export const defaultOptions: RouterOptions = {
  * @param opts An optional options object
  * @returns A Promise which resolves to a Handler
  */
-export async function fsRouter(
+export function fsRouter(
   rootDir: string,
   options: Partial<RouterOptions> = {},
-): Promise<http.Handler> {
+): FetchHandler {
   const mergedOptions: RouterOptions = {
     ...defaultOptions,
     ...options,
@@ -229,27 +183,11 @@ export async function fsRouter(
 
   rootDir = normalizeRootDir(rootDir);
 
-  let routes = mergedOptions._routes;
-  if (routes.length) {
-    log.debug(
-      "Routes supplied as option.  Not discovering routes with dynamic imports...",
-    );
-    log.debug("Supplied routes:", routes);
-  } else {
-    log.debug(
-      "No routes supplied as option.  Discovering routes with dynamic import...",
-    );
-    routes = await discoverRoutes(rootDir, mergedOptions);
-  }
-
+  const routes = discoverRoutes(rootDir);
   if (routes.length === 0) {
     errorRootDirEmpty(rootDir);
     Deno.exit(0);
   }
 
-  if (mergedOptions.bootMessage) {
-    _bootMessage(routes, rootDir);
-  }
-
-  return handleRoutes(routes, mergedOptions);
+  return handleRoutes(routes);
 }
