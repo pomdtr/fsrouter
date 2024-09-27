@@ -1,7 +1,6 @@
-# :postbox: `fsrouter` | [![deno doc](https://doc.deno.land/badge.svg)](https://doc.deno.land/https://deno.land/x/fsrouter/mod.ts) [![deno module](https://shield.deno.dev/x/fsrouter)](https://deno.land/x/fsrouter) ![release](https://github.com/justinawrey/fsrouter/actions/workflows/release-automatic.yml/badge.svg)
+# `fsrouter`
 
-A file system based router for [Deno](https://deno.land). Supports
-[Deno Deploy](https://deno.com/deploy)!
+A file system based router for [Deno](https://deno.land).
 
 ## Basic usage
 
@@ -75,13 +74,11 @@ Initialize a server by calling `fsRouter`:
 
 ```typescript
 // my-app/mod.ts
-import { fsRouter } from "https://deno.land/x/fsrouter@{VERSION}/mod.ts";
-import { serve } from "https://deno.land/std@{VERSION}/http/server.ts";
+import { fsRouter } from "jsr:@pomdtr/fsrouter";
 
-// Use the file system router with base directory 'pages'
-// The first argument to fsRouter requires an absolute path
-// Paths starting with 'file://' are okay
-serve(await fsRouter(import.meta.resolve("./pages")));
+export default {
+  fetch: fsRouter(import.meta.resolve("./pages")),
+}
 ```
 
 Now running:
@@ -141,36 +138,6 @@ match strings and numbers respectively. For example:
 | `pages/blog/[id:number].ts` | `/blog/123`, `/blog/45`                 |
 | `pages/blog/[id:string].ts` | `/blog/first-post`, `/blog/second-post` |
 
-Matches for slugs of type `:number` will be automatically converted to type
-`number`:
-
-```typescript
-// my-app/pages/blog/[id:number].ts
-import { type Slugs } from "https://deno.land/x/fsrouter@{VERSION}/mod.ts";
-
-// req url: /blog/123
-export default (req: Request, slugs: Slugs) => {
-  console.log(typeof slugs.id); // 'number'
-
-  return new Response("Matched dynamic route!");
-};
-```
-
-This automatic conversion behaviour can be disabled via
-[RouterOptions.convertToNumber](https://deno.land/x/fsrouter/mod.ts?s=RouterOptions).
-
-## Watch mode
-
-During development, you can use Deno's built-in `--watch=<folder>` to restart
-the server on changes. Providing a bare `--watch` has the caveat of not being
-able to detect new file additions, since by default Deno will watch only files
-it can statically discover. By providing a root directory, Deno will be able to
-detect new file additions as well:
-
-```bash
-deno run --allow-read --allow-net --watch=pages my-app/mod.ts
-```
-
 ## Permissions
 
 Using `fsrouter` requires both `--allow-read` and `--allow-net` for the
@@ -181,19 +148,3 @@ following reasons:
 - `--allow-net`: `fsrouter` itself doesn't actually need network access, but
   since it's very likely your script will include using `fsrouter` in tandem
   with some sort of file server, you'll likely need this permission grant
-
-When deploying to Deno Deploy, `--allow-write` is also required so `fsrouter`
-can generate a manifest file containing static imports.
-
-## Deno Deploy
-
-When running locally with the Deno CLI, this module uses dynamic imports to
-resolve file names to their respective routes. As Deno Deploy
-[does not support dynamic imports](https://github.com/denoland/deploy_feedback/issues/1),
-a "manifest" file containing static imports for every route must be generated
-during development and committed to your linked repository. This is the same
-approach taken by [Fresh](https://fresh.deno.dev/), and is enabled by default.
-
-If you do not need to run your code in Deno Deploy, you can disable manifest
-generation with
-[RouterOptions.generateManifest](https://deno.land/x/fsrouter/mod.ts?s=RouterOptions).
