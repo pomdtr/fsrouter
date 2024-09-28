@@ -1,4 +1,4 @@
-import { type Matches } from "./slug.ts";
+import type { Matches } from "./slug.ts";
 
 /**
  * Slugs is an object of text matched from route wildcards.  See FsHandler example for more details.

@@ -1,4 +1,5 @@
-import { colors, log } from "../deps.ts";
+import * as log from "@std/log"
+import * as colors from "@std/fmt/colors"
 
 export function setupLogger(debug: boolean): void {
   return log.setup({

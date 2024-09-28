@@ -1,4 +1,4 @@
-import { colors } from "../deps.ts";
+import * as colors from "@std/fmt/colors"
 
 // Logs a warning message saying that you
 // may have accidentally started a server with no routes

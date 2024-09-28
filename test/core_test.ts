@@ -1,9 +1,12 @@
-import { asserts, path } from "../deps.ts";
+import * as path from "@std/path"
+import * as asserts from "@std/assert";
+
+
+
 import { fsRouter } from "../mod.ts";
 
 const handler = await fsRouter(
   path.fromFileUrl(import.meta.resolve("../example/pages")),
-  { bootMessage: false, generateManifest: false },
 );
 
 async function makeRequest(path: string): Promise<string> {

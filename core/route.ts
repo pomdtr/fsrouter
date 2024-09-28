@@ -1,6 +1,7 @@
-import { path, log } from "../deps.ts";
+import * as path from "@std/path"
+import * as log from "@std/log"
 import { Slug } from "./slug.ts";
-import { type Matches } from "./slug.ts";
+import type { Matches } from "./slug.ts";
 import { errorRootDirRelative } from "./message.ts";
 
 export function removeExtension(filePath: string): string {

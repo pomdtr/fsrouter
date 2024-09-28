@@ -84,7 +84,7 @@ export default {
 Now running:
 
 ```bash
-deno run --allow-read --allow-net my-app/mod.ts
+deno serve --allow-read=. my-app/mod.ts
 ```
 
 Results in routes being served as follows:

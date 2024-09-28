@@ -1,9 +1,10 @@
-import { colors, log, fs } from "../deps.ts";
+import * as log from "@std/log"
+import * as colors from "@std/fmt/colors"
+import * as fs from "@std/fs"
 import {
   errorDirNotFound,
   errorRootDirEmpty,
 } from "./message.ts";
-import { notFound } from "./response.ts";
 import { normalizeRootDir, Route } from "./route.ts";
 import { setupLogger } from "./log.ts";
 
@@ -63,7 +64,7 @@ export function handleRoutes(
 
     // Respond with a 404 Not Found if asking for a route
     // that does not exist
-    return notFound();
+    return new Response("Not Found", { status: 404 });
   };
 }
 
