@@ -123,15 +123,19 @@ Results in routes being served as follows:
 Dynamic routes are supported using the `[slug]` syntax. This works for files,
 folders, or both. For example:
 
-| File                   | Matches                         |
-| ---------------------- | ------------------------------- |
-| `pages/blog/[id].ts`   | `/blog/123`, `/blog/first-post` |
-| `pages/[id1]/[id2].ts` | `/any/route`                    |
-| `pages/[fallback].ts`  | `/caught-all`, `/any`           |
+| File name                     | Route pattern              | Matching paths                          |
+|-------------------------------|----------------------------|-----------------------------------------|
+| `index.ts`                    | `/`                        | `/`                                     |
+| `about.ts`                    | `/about`                   | `/about`                                |
+| `blog/index.ts`               | `/blog`                    | `/blog`                                 |
+| `blog/[slug].ts`              | `/blog/:slug`              | `/blog/foo`, `/blog/bar`                |
+| `blog/[slug]/comments.ts`     | `/blog/:slug/comments`     | `/blog/foo/comments`                    |
+| `old/[...path].ts`            | `/old/:path*`              | `/old/foo`, `/old/bar/baz`              |
+| `docs/[version]/index.ts`     | `/docs{/:version}?`        | `/docs`, `/docs/latest`, `/docs/canary` |
 
 Matching slug values are provided as the second argument to your handler. Given
-the files as defined in the table above, the route `/any/route` will be provided
-a slug object of the shape `{ id1: 'any', id2: 'route' }`:
+the files as defined in the table above, the route `/example/route` will be provided
+a params object of the shape `{ id1: 'example', id2: 'route' }`:
 
 ```typescript
 // my-app/pages/[id1]/[id2].ts
