@@ -71,10 +71,13 @@ export default (_req: Request) => {
 Initialize a server by calling `createRouter`:
 
 ```typescript
-// my-app/mod.ts
-import { createRouter } from "jsr:@pomdtr/fsrouter";
+import { route } from "jsr:@pomdtr/fsrouter";
 
-export default createRouter(import.meta.resolve("./pages"));
+export default {
+  fetch: route("pages", () => {
+    return new Response("404 Not Found", { status: 404 });
+  }),
+}
 ```
 
 `.html`, `.md`, and `.mdx` files are also supported:
