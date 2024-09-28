@@ -203,7 +203,7 @@ function discoverRoutes(
     })
 }
 
-export function route(
+export function router(
     rootDir: string,
     defaultHandler: (request: Request, info?: Deno.ServeHandlerInfo,) => Response | Promise<Response>
 ): (request: Request, info?: Deno.ServeHandlerInfo,) => Response | Promise<Response> {
@@ -212,6 +212,6 @@ export function route(
 }
 
 export type Handler = (req: Request, params: Readonly<Record<string, string>>, info?: Deno.ServeHandlerInfo) => Response | Promise<Response>;
-export function createRoute(handler: Handler): Handler {
+export function route(handler: Handler): Handler {
     return handler;
 }
