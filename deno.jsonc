@@ -1,6 +1,6 @@
 {
   "name": "@pomdtr/fsrouter",
-  "version": "0.5.0",
+  "version": "0.5.2",
   "description": "A simple filesystem router for Deno",
   "exports": {
     ".": "./mod.ts"

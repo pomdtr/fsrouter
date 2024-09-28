@@ -154,7 +154,7 @@ export function normalizeRootDir(rootDir: string): string {
 }
 
 
-function discoverRoutes(
+export function discoverRoutes(
     rootDir: string,
 ): http.Route[] {
     rootDir = normalizeRootDir(rootDir);
@@ -205,9 +205,10 @@ function discoverRoutes(
 
 export function router(
     rootDir: string,
-    defaultHandler: (request: Request, info?: Deno.ServeHandlerInfo,) => Response | Promise<Response>
+    defaultHandler?: (request: Request, info?: Deno.ServeHandlerInfo,) => Response | Promise<Response>
 ): (request: Request, info?: Deno.ServeHandlerInfo,) => Response | Promise<Response> {
     const routes = discoverRoutes(rootDir);
+    defaultHandler = defaultHandler || (() => new Response("Not found", { status: 404 }));
     return http.route(routes, defaultHandler)
 }
 

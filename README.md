@@ -68,13 +68,13 @@ export default (_req: Request) => {
 };
 ```
 
-Initialize a server by calling `createRouter`:
+Initialize a server by calling `router`:
 
 ```typescript
-import { route } from "jsr:@pomdtr/fsrouter";
+import { router } from "jsr:@pomdtr/fsrouter";
 
 export default {
-  fetch: route("pages", () => {
+  fetch: router("./pages", () => {
     return new Response("404 Not Found", { status: 404 });
   }),
 }
@@ -142,10 +142,10 @@ a params object of the shape `{ id1: 'example', id2: 'route' }`:
 
 ```typescript
 // my-app/pages/[id1]/[id2].ts
-import { createRoute } from "jsr:@pomdtr/fsrouter";
+import { route } from "jsr:@pomdtr/fsrouter";
 
 // req url: /example/route
-export default createRoute((req, params) => {
+export default route((req, params) => {
   console.log(params.id1); // 'example'
   console.log(params.id2); // 'route'
 

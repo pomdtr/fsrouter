@@ -1,5 +1,5 @@
-import { createRoute } from "../../mod.ts";
+import { route } from "jsr:@pomdtr/fsrouter"
 
-export default createRoute((_req, params) => {
+export default route((_req, params) => {
   return new Response(`/blog/${params.id}`);
 });
