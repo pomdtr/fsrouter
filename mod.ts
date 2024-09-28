@@ -211,6 +211,6 @@ export function route(
 }
 
 export type Handler = (req: Request, params: Readonly<Record<string, string>>, info?: Deno.ServeHandlerInfo) => Response | Promise<Response>;
-export function createRoute(handler: Handler) {
+export function createRoute(handler: Handler): Handler {
     return handler;
 }
