@@ -186,7 +186,8 @@ function discoverRoutes(
                     return serveMarkdown(path.join(rootDir, filepath))
                 }
 
-                const { default: handler } = await import(path.join(rootDir, filepath)) as { default?: Handler };
+                const importUrl = new URL(`file://${path.join(rootDir, filepath)}`);
+                const { default: handler } = await import(importUrl.href) as { default?: Handler };
                 if (!handler || typeof handler !== "function") {
                     return new Response("Default export must be a function", { status: 500 });
                 }
