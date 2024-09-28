@@ -10,10 +10,10 @@ Given a project with the following folder structure:
 my-app/
 ├─ pages/
 │  ├─ blog/
-│  │  ├─ post.ts
+│  │  ├─ post.md
 │  │  ├─ index.ts
 │  ├─ about.ts
-│  ├─ index.ts
+│  ├─ index.html
 ├─ mod.ts
 ```
 
@@ -75,6 +75,32 @@ Initialize a server by calling `createRouter`:
 import { createRouter } from "jsr:@pomdtr/fsrouter";
 
 export default createRouter(import.meta.resolve("./pages"));
+```
+
+`.html`, `.md`, and `.mdx` files are also supported:
+
+```html
+<!-- my-app/pages/index.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hello world</title>
+  </head>
+  <body>
+    <h1>Hello world</h1>
+  </body>
+</html>
+```
+
+You can specify the page title and favicon in `.md` and `.mdx` files:
+
+```markdown
+---
+title: Hello world
+favicon: /favicon.ico
+---
+
+# Hello world
 ```
 
 Now running:

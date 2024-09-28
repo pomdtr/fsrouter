@@ -1,3 +1,5 @@
-import { createRouter } from "./mod.ts";
+import { route } from "./mod.ts";
 
-export default createRouter(import.meta.resolve("./example"));
+export default {
+    fetch: route("./example", () => { return new Response("Not found", { status: 404 }); })
+} satisfies Deno.ServeDefaultExport
