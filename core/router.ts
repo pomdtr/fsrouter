@@ -3,7 +3,6 @@ import * as colors from "@std/fmt/colors"
 import * as fs from "@std/fs"
 import {
   errorDirNotFound,
-  errorRootDirEmpty,
 } from "./message.ts";
 import { normalizeRootDir, Route } from "./route.ts";
 import { setupLogger } from "./log.ts";
@@ -171,24 +170,33 @@ export const defaultOptions: RouterOptions = {
 export function createRouter(
   rootDir: string,
   options: Partial<RouterOptions> = {},
-): FetchHandler {
-  const mergedOptions: RouterOptions = {
-    ...defaultOptions,
-    ...options,
-  };
+): Router {
+  return new Router(rootDir, options);
+}
 
-  setupLogger(mergedOptions.debug);
+class Router {
+  routes: Route[]
+  handler: FetchHandler
 
-  log.debug("fsRouter initialized with root dir:", rootDir);
-  log.debug("fsRouter initialized with options:", mergedOptions);
+  constructor(rootDir: string, options: Partial<RouterOptions>) {
+    const mergedOptions: RouterOptions = {
+      ...defaultOptions,
+      ...options,
+    };
 
-  rootDir = normalizeRootDir(rootDir);
+    setupLogger(mergedOptions.debug);
 
-  const routes = discoverRoutes(rootDir);
-  if (routes.length === 0) {
-    errorRootDirEmpty(rootDir);
-    Deno.exit(0);
+    log.debug("fsRouter initialized with root dir:", rootDir);
+    log.debug("fsRouter initialized with options:", mergedOptions);
+
+    rootDir = normalizeRootDir(rootDir);
+    const routes = discoverRoutes(rootDir);
+
+    this.routes = routes
+    this.handler = handleRoutes(routes);
   }
 
-  return handleRoutes(routes);
+  fetch = (req: Request): Response | Promise<Response> => {
+    return this.handler(req);
+  }
 }

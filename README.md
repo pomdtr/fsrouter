@@ -74,9 +74,7 @@ Initialize a server by calling `createRouter`:
 // my-app/mod.ts
 import { createRouter } from "jsr:@pomdtr/fsrouter";
 
-export default {
-  fetch: createRouter(import.meta.resolve("./pages")),
-}
+export default createRouter(import.meta.resolve("./pages"));
 ```
 
 Now running:

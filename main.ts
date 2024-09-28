@@ -1,5 +1,3 @@
 import { createRouter } from "./mod.ts";
 
-export default {
-    fetch: createRouter(import.meta.resolve("./example")),
-}
+export default createRouter(import.meta.resolve("./example"));
