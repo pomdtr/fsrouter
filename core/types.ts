@@ -3,7 +3,7 @@ import type { Matches } from "./slug.ts";
 /**
  * Slugs is an object of text matched from route wildcards.  See FsHandler example for more details.
  */
-export type Slugs = Readonly<Matches>;
+export type Params = Readonly<Matches>;
 
 /**
  * Every file to which routes are being served must export a function of type FsHandler as its
@@ -26,7 +26,11 @@ export type Slugs = Readonly<Matches>;
  * export default handler;
  * ```
  */
-export type FsHandler = (
+export type Handler = (
   request: Request,
-  slugs: Slugs,
+  params: Params,
 ) => Response | Promise<Response>;
+
+export function createRoute(handler: Handler): Handler {
+  return handler;
+}

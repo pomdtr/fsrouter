@@ -1,7 +1,6 @@
-import { type FsHandler } from "../../mod.ts";
+import { createRoute } from "../../mod.ts";
 
-const handler: FsHandler = (_req, slugs) => {
-  return new Response(`/${slugs.test}/raw`);
-};
 
-export default handler;
+export default createRoute((_req, params) => {
+  return new Response(`/example/${params.test}/raw`);
+});

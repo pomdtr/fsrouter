@@ -83,27 +83,7 @@ export class Route {
       // b: /blog/[id]
       // In this case, sort by longest 'raw base path'
       if (lengthFactor === 0) {
-        const basePathFactor = b.baseLength - a.baseLength;
-
-        // Within THIS results set, make sure typed slugs sort before untyped slugs
-        if (basePathFactor === 0) {
-          const slugsA = a.slugs;
-          const slugsB = b.slugs;
-          let slugTypeFactor = 0;
-
-          // At this point length is the same for both slug arrays
-          for (let i = 0; i < slugsA.length; i++) {
-            const slugA = slugsA[i];
-            const slugB = slugsB[i];
-
-            slugTypeFactor = Number(slugB.hasType) -
-              Number(slugA.hasType);
-
-            if (slugTypeFactor !== 0) return slugTypeFactor;
-          }
-        }
-
-        return basePathFactor;
+        return b.baseLength - a.baseLength;
       }
 
       // Otherwise just sort by sheer number of raw parts
@@ -171,7 +151,7 @@ export class Route {
         return part;
       }
 
-      return new Slug(part).regEx;
+      return "(\\w+)"
     }
 
     return new RegExp(

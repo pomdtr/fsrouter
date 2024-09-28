@@ -3,9 +3,9 @@ import * as asserts from "@std/assert";
 
 
 
-import { fsRouter } from "../mod.ts";
+import { createRouter } from "../mod.ts";
 
-const handler = await fsRouter(
+const handler = await createRouter(
   path.fromFileUrl(import.meta.resolve("../example/pages")),
 );
 

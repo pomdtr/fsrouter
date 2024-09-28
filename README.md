@@ -17,9 +17,7 @@ my-app/
 ├─ mod.ts
 ```
 
-Each "route file" must export a
-[FsHandler](https://deno.land/x/fsrouter/mod.ts?s=FsHandler) as its default
-export:
+Each "route file" must export a Fetch Handler as its default export:
 
 ```typescript
 // my-app/pages/blog/post.ts
@@ -43,8 +41,8 @@ source you wish:
 ```tsx
 // my-app/pages/blog/post.tsx
 
-/** @jsx h */
-import { h, renderSSR } from "https://deno.land/x/nano_jsx@v0.0.33/mod.ts";
+/** @jsxImportSource npm:preact */
+import { render } from "npm:preact-render-to-string";
 
 function App() {
   return (
@@ -60,7 +58,7 @@ function App() {
 }
 
 export default (_req: Request) => {
-  const html = renderSSR(<App />);
+  const html = render(<App />);
 
   return new Response(html, {
     headers: {
@@ -70,14 +68,14 @@ export default (_req: Request) => {
 };
 ```
 
-Initialize a server by calling `fsRouter`:
+Initialize a server by calling `createRouter`:
 
 ```typescript
 // my-app/mod.ts
-import { fsRouter } from "jsr:@pomdtr/fsrouter";
+import { createRouter } from "jsr:@pomdtr/fsrouter";
 
 export default {
-  fetch: fsRouter(import.meta.resolve("./pages")),
+  fetch: createRouter(import.meta.resolve("./pages")),
 }
 ```
 
@@ -96,10 +94,6 @@ Results in routes being served as follows:
 | `pages/blog/index.ts` | `/blog`      |
 | `pages/blog/post.ts`  | `/blog/post` |
 
-An options object can be provided as the second argument to `fsRouter`. See
-[RouterOptions](https://deno.land/x/fsrouter/mod.ts?s=RouterOptions) for
-details.
-
 ## Dynamic routes
 
 Dynamic routes are supported using the `[slug]` syntax. This works for files,
@@ -111,32 +105,22 @@ folders, or both. For example:
 | `pages/[id1]/[id2].ts` | `/any/route`                    |
 | `pages/[fallback].ts`  | `/caught-all`, `/any`           |
 
-Matching slug values are provided as the second argument to `FsHandler`. Given
+Matching slug values are provided as the second argument to your handler. Given
 the files as defined in the table above, the route `/any/route` will be provided
 a slug object of the shape `{ id1: 'any', id2: 'route' }`:
 
 ```typescript
 // my-app/pages/[id1]/[id2].ts
-import { type Slugs } from "https://deno.land/x/fsrouter@{VERSION}/mod.ts";
+import { createRoute } from "jsr:@pomdtr/fsrouter";
 
-// req url: /any/route
-export default (req: Request, slugs: Slugs) => {
-  console.log(slugs.id1); // 'any'
-  console.log(slugs.id2); // 'route'
+// req url: /example/route
+export default createRoute((req, params) => {
+  console.log(params.id1); // 'example'
+  console.log(params.id2); // 'route'
 
   return new Response("Matched dynamic route!");
-};
+})
 ```
-
-## Typed dynamic routes
-
-Slugs can optionally include a `:string` or `:number` postfix to exclusively
-match strings and numbers respectively. For example:
-
-| File                        | Matches                                 |
-| --------------------------- | --------------------------------------- |
-| `pages/blog/[id:number].ts` | `/blog/123`, `/blog/45`                 |
-| `pages/blog/[id:string].ts` | `/blog/first-post`, `/blog/second-post` |
 
 ## Permissions
 

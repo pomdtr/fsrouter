@@ -1,5 +1,5 @@
-/** @jsx h */
-import { h, renderSSR } from "https://deno.land/x/nano_jsx@v0.0.33/mod.ts";
+/** @jsxImportSource npm:preact */
+import { render } from "npm:preact-render-to-string"
 
 function App() {
   return (
@@ -15,7 +15,7 @@ function App() {
 }
 
 export default (_req: Request) => {
-  const html = renderSSR(<App />);
+  const html = render(<App />);
 
   return new Response(html, {
     headers: {

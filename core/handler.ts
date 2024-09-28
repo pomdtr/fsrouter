@@ -121,7 +121,7 @@ export const defaultOptions: RouterOptions = {
 
 
 /**
- * fsRouter creates a standard library Handler which handles requests
+ * createRouter creates a standard library Handler which handles requests
  * according to the shape of the filesystem at the given rootDir.
  * Each file within rootDir must provide a FsHandler as its default
  * export, which will be used to execute requests if the requested
@@ -168,7 +168,7 @@ export const defaultOptions: RouterOptions = {
  * @param opts An optional options object
  * @returns A Promise which resolves to a Handler
  */
-export function fsRouter(
+export function createRouter(
   rootDir: string,
   options: Partial<RouterOptions> = {},
 ): FetchHandler {

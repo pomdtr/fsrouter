@@ -1,5 +1,5 @@
-import { fsRouter } from "./mod.ts";
+import { createRouter } from "./mod.ts";
 
 export default {
-    fetch: fsRouter(import.meta.resolve("./example")),
+    fetch: createRouter(import.meta.resolve("./example")),
 }

@@ -1,7 +1,5 @@
-import { type FsHandler } from "../mod.ts";
+import { createRoute } from "../mod.ts";
 
-const handler: FsHandler = (_req, slugs) => {
+export default createRoute((_req, slugs) => {
   return new Response(`/${slugs.fallback}`);
-};
-
-export default handler;
+});
