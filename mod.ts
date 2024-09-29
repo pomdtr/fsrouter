@@ -187,9 +187,19 @@ export function discoverRoutes(
                 }
 
                 const importUrl = new URL(`file://${path.join(rootDir, filepath)}`);
-                const { default: handler } = await import(importUrl.href) as { default?: Handler };
-                if (!handler || typeof handler !== "function") {
-                    return new Response("Default export must be a function", { status: 500 });
+                const mod = await import(importUrl.href);
+
+                if (!mod.default) {
+                    return new Response("Handler not found", { status: 404 });
+                }
+
+                let handler: Handler
+                if (typeof mod.default === "function") {
+                    handler = mod.default
+                } else if (typeof mod.default === "object" && typeof mod.default.fetch === "function") {
+                    handler = mod.default.fetch
+                } else {
+                    return new Response("Handler not found", { status: 404 });
                 }
 
                 const params: Record<string, string> = {}

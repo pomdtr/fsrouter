@@ -68,19 +68,7 @@ export default (_req: Request) => {
 };
 ```
 
-Initialize a server by calling `router`:
-
-```typescript
-import { router } from "jsr:@pomdtr/fsrouter";
-
-export default {
-  fetch: router("./pages", () => {
-    return new Response("404 Not Found", { status: 404 });
-  }),
-}
-```
-
-`.html`, `.md`, and `.mdx` files are also supported:
+`.html` and `.md` files are also supported:
 
 ```html
 <!-- my-app/pages/index.html -->
@@ -106,10 +94,22 @@ favicon: /favicon.ico
 # Hello world
 ```
 
+Initialize a server by calling `router`:
+
+```typescript
+import { router } from "jsr:@pomdtr/fsrouter";
+
+export default {
+  fetch: router("./pages", () => {
+    return new Response("404 Not Found", { status: 404 });
+  }),
+}
+```
+
 Now running:
 
 ```bash
-deno serve --allow-read=. my-app/mod.ts
+deno serve --allow-read=. my-app/main.ts
 ```
 
 Results in routes being served as follows:
