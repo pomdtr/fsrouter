@@ -1,6 +1,6 @@
 {
   "name": "@pomdtr/fsrouter",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "description": "A simple filesystem router for Deno",
   "lock": false,
   "exports": {
@@ -27,5 +27,13 @@
     "@std/http": "jsr:@std/http@^1.0.7",
     "@std/path": "jsr:@std/path@^1.0.6",
     "@std/testing": "jsr:@std/testing@^1.0.3"
+  },
+  "deploy": {
+    "project": "10fc9c2b-2923-4a47-a8a2-2e74b405d54d",
+    "exclude": [
+      "**/node_modules"
+    ],
+    "include": [],
+    "entrypoint": "main.ts"
   }
 }
