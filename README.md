@@ -153,13 +153,19 @@ export default route((req, params) => {
 })
 ```
 
-## Permissions
+## Serving static files
 
-Using `fsrouter` requires both `--allow-read` and `--allow-net` for the
-following reasons:
+You can use the fallback handler to serve static files from a directory when no match is found from your pages directory:
 
-- `--allow-read`: `fsrouter` needs to traverse the filesystem in order to
-  discover handler files
-- `--allow-net`: `fsrouter` itself doesn't actually need network access, but
-  since it's very likely your script will include using `fsrouter` in tandem
-  with some sort of file server, you'll likely need this permission grant
+```ts
+import { router } from "jsr:@pomdtr/fsrouter"
+import { serveDir } from "jsr:@std/http/file-server"
+
+export default {
+    fetch: router("./pages", (req) => {
+        return serveDir(req, {
+            fsRoot: "./static",
+        })
+    })
+}
+```

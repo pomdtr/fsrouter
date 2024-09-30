@@ -141,24 +141,11 @@ function comparePatterns(a: string, b: string): number {
 
 
 
-export function normalizeRootDir(rootDir: string): string {
-    if (rootDir.startsWith("file://")) {
-        rootDir = rootDir.substring("file://".length);
-    }
-
-    if (!path.isAbsolute(rootDir)) {
-        rootDir = path.join(Deno.cwd(), rootDir);
-    }
-
-    return rootDir;
-}
 
 
 export function discoverRoutes(
     rootDir: string,
 ): http.Route[] {
-    rootDir = normalizeRootDir(rootDir);
-
     const files: string[] = [];
     try {
         for (const entry of fs.walkSync(rootDir, {
@@ -186,8 +173,7 @@ export function discoverRoutes(
                     return serveMarkdown(path.join(rootDir, filepath))
                 }
 
-                const importUrl = new URL(`file://${path.join(rootDir, filepath)}`);
-                const mod = await import(importUrl.href);
+                const mod = await import(`./${path.join(rootDir, filepath)}`);
 
                 if (!mod.default) {
                     return new Response("Handler not found", { status: 404 });
